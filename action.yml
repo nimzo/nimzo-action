@@ -1,5 +1,5 @@
 name: Nimzo evaluation
-description: Evaluates a pull request's Terraform changes against Nimzo policies, on the job's check and in one pull request comment.
+description: Evaluates a pull request's Terraform changes, or a Terraform plan, against Nimzo policies, on the job's check and in one pull request comment.
 author: Nimzo
 
 inputs:
@@ -21,6 +21,10 @@ inputs:
   enable-annotations:
     description: Whether to annotate each finding on its line on the job's check, and in the job when it has no location; ignored when enable-comments is true, which comments on the findings instead. Evaluation errors and skipped folders are annotated either way.
     default: "true"
+  plan-file:
+    description: Terraform plan JSON to evaluate instead of the changed folders, relative to the workspace, written into its stack folder (terraform show -json plan.out > <stack>/plan.json). The Terraform files of that folder are sent with it, so each finding points at its code; a plan with no .tf file next to it fails the step. Unset, the changed folders are evaluated.
+  environment:
+    description: Name of the environment of the stack to evaluate, as Nimzo shows it, such as prod. Its variables file is loaded, and the policy parameters of that environment apply. A stack with no environment of that name is skipped.
   timeout:
     description: How many seconds the Nimzo CLI waits for each folder's evaluation, the suggestion of its fixes included, which can take up to 15 minutes. Unset, the CLI's own default applies (300).
 

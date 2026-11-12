@@ -2154,9 +2154,9 @@ var require_dispatcher_base = __commonJS({
       }
       close(callback) {
         if (callback === void 0) {
-          return new Promise((resolve3, reject) => {
+          return new Promise((resolve4, reject) => {
             this.close((err, data) => {
-              return err ? reject(err) : resolve3(data);
+              return err ? reject(err) : resolve4(data);
             });
           });
         }
@@ -2194,12 +2194,12 @@ var require_dispatcher_base = __commonJS({
           err = null;
         }
         if (callback === void 0) {
-          return new Promise((resolve3, reject) => {
+          return new Promise((resolve4, reject) => {
             this.destroy(err, (err2, data) => {
               return err2 ? (
                 /* istanbul ignore next: should never error */
                 reject(err2)
-              ) : resolve3(data);
+              ) : resolve4(data);
             });
           });
         }
@@ -4466,8 +4466,8 @@ var require_util2 = __commonJS({
     function createDeferredPromise() {
       let res;
       let rej;
-      const promise = new Promise((resolve3, reject) => {
-        res = resolve3;
+      const promise = new Promise((resolve4, reject) => {
+        res = resolve4;
         rej = reject;
       });
       return { promise, resolve: res, reject: rej };
@@ -6718,12 +6718,12 @@ upgrade: ${upgrade}\r
           cb();
         }
       }
-      const waitForDrain = () => new Promise((resolve3, reject) => {
+      const waitForDrain = () => new Promise((resolve4, reject) => {
         assert(callback === null);
         if (socket[kError]) {
           reject(socket[kError]);
         } else {
-          callback = resolve3;
+          callback = resolve4;
         }
       });
       socket.on("close", onDrain).on("drain", onDrain);
@@ -7393,12 +7393,12 @@ var require_client_h2 = __commonJS({
           cb();
         }
       }
-      const waitForDrain = () => new Promise((resolve3, reject) => {
+      const waitForDrain = () => new Promise((resolve4, reject) => {
         assert(callback === null);
         if (socket[kError]) {
           reject(socket[kError]);
         } else {
-          callback = resolve3;
+          callback = resolve4;
         }
       });
       h2stream.on("close", onDrain).on("drain", onDrain);
@@ -7877,16 +7877,16 @@ var require_client = __commonJS({
         return this[kNeedDrain] < 2;
       }
       async [kClose]() {
-        return new Promise((resolve3) => {
+        return new Promise((resolve4) => {
           if (this[kSize]) {
-            this[kClosedResolve] = resolve3;
+            this[kClosedResolve] = resolve4;
           } else {
-            resolve3(null);
+            resolve4(null);
           }
         });
       }
       async [kDestroy](err) {
-        return new Promise((resolve3) => {
+        return new Promise((resolve4) => {
           const requests = this[kQueue].splice(this[kPendingIdx]);
           for (let i = 0; i < requests.length; i++) {
             const request2 = requests[i];
@@ -7897,7 +7897,7 @@ var require_client = __commonJS({
               this[kClosedResolve]();
               this[kClosedResolve] = null;
             }
-            resolve3(null);
+            resolve4(null);
           };
           if (this[kHTTPContext]) {
             this[kHTTPContext].destroy(err, callback);
@@ -7948,7 +7948,7 @@ var require_client = __commonJS({
         });
       }
       try {
-        const socket = await new Promise((resolve3, reject) => {
+        const socket = await new Promise((resolve4, reject) => {
           client[kConnector]({
             host,
             hostname,
@@ -7960,7 +7960,7 @@ var require_client = __commonJS({
             if (err) {
               reject(err);
             } else {
-              resolve3(socket2);
+              resolve4(socket2);
             }
           });
         });
@@ -8296,8 +8296,8 @@ var require_pool_base = __commonJS({
         if (this[kQueue].isEmpty()) {
           await Promise.all(this[kClients].map((c) => c.close()));
         } else {
-          await new Promise((resolve3) => {
-            this[kClosedResolve] = resolve3;
+          await new Promise((resolve4) => {
+            this[kClosedResolve] = resolve4;
           });
         }
       }
@@ -9566,7 +9566,7 @@ var require_readable = __commonJS({
         if (this._readableState.closeEmitted) {
           return null;
         }
-        return await new Promise((resolve3, reject) => {
+        return await new Promise((resolve4, reject) => {
           if (this[kContentLength] > limit) {
             this.destroy(new AbortError());
           }
@@ -9579,7 +9579,7 @@ var require_readable = __commonJS({
             if (signal?.aborted) {
               reject(signal.reason ?? new AbortError());
             } else {
-              resolve3(null);
+              resolve4(null);
             }
           }).on("error", noop3).on("data", function(chunk) {
             limit -= chunk.length;
@@ -9598,7 +9598,7 @@ var require_readable = __commonJS({
     }
     async function consume(stream, type) {
       assert(!stream[kConsume]);
-      return new Promise((resolve3, reject) => {
+      return new Promise((resolve4, reject) => {
         if (isUnusable(stream)) {
           const rState = stream._readableState;
           if (rState.destroyed && rState.closeEmitted === false) {
@@ -9615,7 +9615,7 @@ var require_readable = __commonJS({
             stream[kConsume] = {
               type,
               stream,
-              resolve: resolve3,
+              resolve: resolve4,
               reject,
               length: 0,
               body: []
@@ -9685,18 +9685,18 @@ var require_readable = __commonJS({
       return buffer;
     }
     function consumeEnd(consume2) {
-      const { type, body, resolve: resolve3, stream, length } = consume2;
+      const { type, body, resolve: resolve4, stream, length } = consume2;
       try {
         if (type === "text") {
-          resolve3(chunksDecode(body, length));
+          resolve4(chunksDecode(body, length));
         } else if (type === "json") {
-          resolve3(JSON.parse(chunksDecode(body, length)));
+          resolve4(JSON.parse(chunksDecode(body, length)));
         } else if (type === "arrayBuffer") {
-          resolve3(chunksConcat(body, length).buffer);
+          resolve4(chunksConcat(body, length).buffer);
         } else if (type === "blob") {
-          resolve3(new Blob(body, { type: stream[kContentType] }));
+          resolve4(new Blob(body, { type: stream[kContentType] }));
         } else if (type === "bytes") {
-          resolve3(chunksConcat(body, length));
+          resolve4(chunksConcat(body, length));
         }
         consumeFinish(consume2);
       } catch (err) {
@@ -9953,9 +9953,9 @@ var require_api_request = __commonJS({
     };
     function request2(opts, callback) {
       if (callback === void 0) {
-        return new Promise((resolve3, reject) => {
+        return new Promise((resolve4, reject) => {
           request2.call(this, opts, (err, data) => {
-            return err ? reject(err) : resolve3(data);
+            return err ? reject(err) : resolve4(data);
           });
         });
       }
@@ -10178,9 +10178,9 @@ var require_api_stream = __commonJS({
     };
     function stream(opts, factory, callback) {
       if (callback === void 0) {
-        return new Promise((resolve3, reject) => {
+        return new Promise((resolve4, reject) => {
           stream.call(this, opts, factory, (err, data) => {
-            return err ? reject(err) : resolve3(data);
+            return err ? reject(err) : resolve4(data);
           });
         });
       }
@@ -10465,9 +10465,9 @@ var require_api_upgrade = __commonJS({
     };
     function upgrade(opts, callback) {
       if (callback === void 0) {
-        return new Promise((resolve3, reject) => {
+        return new Promise((resolve4, reject) => {
           upgrade.call(this, opts, (err, data) => {
-            return err ? reject(err) : resolve3(data);
+            return err ? reject(err) : resolve4(data);
           });
         });
       }
@@ -10559,9 +10559,9 @@ var require_api_connect = __commonJS({
     };
     function connect(opts, callback) {
       if (callback === void 0) {
-        return new Promise((resolve3, reject) => {
+        return new Promise((resolve4, reject) => {
           connect.call(this, opts, (err, data) => {
-            return err ? reject(err) : resolve3(data);
+            return err ? reject(err) : resolve4(data);
           });
         });
       }
@@ -14424,7 +14424,7 @@ var require_fetch = __commonJS({
       function dispatch({ body }) {
         const url = requestCurrentURL(request2);
         const agent = fetchParams.controller.dispatcher;
-        return new Promise((resolve3, reject) => agent.dispatch(
+        return new Promise((resolve4, reject) => agent.dispatch(
           {
             path: url.pathname + url.search,
             origin: url.origin,
@@ -14500,7 +14500,7 @@ var require_fetch = __commonJS({
               }
               this.body = new Readable({ read: resume });
               const onError = this.onError.bind(this);
-              resolve3({
+              resolve4({
                 status,
                 statusText,
                 headersList,
@@ -14543,7 +14543,7 @@ var require_fetch = __commonJS({
               for (let i = 0; i < rawHeaders.length; i += 2) {
                 headersList.append(bufferToLowerCasedHeaderName(rawHeaders[i]), rawHeaders[i + 1].toString("latin1"), true);
               }
-              resolve3({
+              resolve4({
                 status,
                 statusText: STATUS_CODES[status],
                 headersList,
@@ -18284,8 +18284,8 @@ var require_util8 = __commonJS({
       return true;
     }
     function delay(ms) {
-      return new Promise((resolve3) => {
-        setTimeout(resolve3, ms).unref();
+      return new Promise((resolve4) => {
+        setTimeout(resolve4, ms).unref();
       });
     }
     module2.exports = {
@@ -19267,11 +19267,11 @@ var require_lib = __commonJS({
     })();
     var __awaiter7 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
       function adopt(value) {
-        return value instanceof P ? value : new P(function(resolve3) {
-          resolve3(value);
+        return value instanceof P ? value : new P(function(resolve4) {
+          resolve4(value);
         });
       }
-      return new (P || (P = Promise))(function(resolve3, reject) {
+      return new (P || (P = Promise))(function(resolve4, reject) {
         function fulfilled(value) {
           try {
             step(generator.next(value));
@@ -19287,7 +19287,7 @@ var require_lib = __commonJS({
           }
         }
         function step(result) {
-          result.done ? resolve3(result.value) : adopt(result.value).then(fulfilled, rejected);
+          result.done ? resolve4(result.value) : adopt(result.value).then(fulfilled, rejected);
         }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
       });
@@ -19374,26 +19374,26 @@ var require_lib = __commonJS({
       }
       readBody() {
         return __awaiter7(this, void 0, void 0, function* () {
-          return new Promise((resolve3) => __awaiter7(this, void 0, void 0, function* () {
+          return new Promise((resolve4) => __awaiter7(this, void 0, void 0, function* () {
             let output = Buffer.alloc(0);
             this.message.on("data", (chunk) => {
               output = Buffer.concat([output, chunk]);
             });
             this.message.on("end", () => {
-              resolve3(output.toString());
+              resolve4(output.toString());
             });
           }));
         });
       }
       readBodyBuffer() {
         return __awaiter7(this, void 0, void 0, function* () {
-          return new Promise((resolve3) => __awaiter7(this, void 0, void 0, function* () {
+          return new Promise((resolve4) => __awaiter7(this, void 0, void 0, function* () {
             const chunks = [];
             this.message.on("data", (chunk) => {
               chunks.push(chunk);
             });
             this.message.on("end", () => {
-              resolve3(Buffer.concat(chunks));
+              resolve4(Buffer.concat(chunks));
             });
           }));
         });
@@ -19601,14 +19601,14 @@ var require_lib = __commonJS({
        */
       requestRaw(info2, data) {
         return __awaiter7(this, void 0, void 0, function* () {
-          return new Promise((resolve3, reject) => {
+          return new Promise((resolve4, reject) => {
             function callbackForResult(err, res) {
               if (err) {
                 reject(err);
               } else if (!res) {
                 reject(new Error("Unknown error"));
               } else {
-                resolve3(res);
+                resolve4(res);
               }
             }
             this.requestRawWithCallback(info2, data, callbackForResult);
@@ -19852,12 +19852,12 @@ var require_lib = __commonJS({
         return __awaiter7(this, void 0, void 0, function* () {
           retryNumber = Math.min(ExponentialBackoffCeiling, retryNumber);
           const ms = ExponentialBackoffTimeSlice * Math.pow(2, retryNumber);
-          return new Promise((resolve3) => setTimeout(() => resolve3(), ms));
+          return new Promise((resolve4) => setTimeout(() => resolve4(), ms));
         });
       }
       _processResponse(res, options) {
         return __awaiter7(this, void 0, void 0, function* () {
-          return new Promise((resolve3, reject) => __awaiter7(this, void 0, void 0, function* () {
+          return new Promise((resolve4, reject) => __awaiter7(this, void 0, void 0, function* () {
             const statusCode = res.message.statusCode || 0;
             const response = {
               statusCode,
@@ -19865,7 +19865,7 @@ var require_lib = __commonJS({
               headers: {}
             };
             if (statusCode === HttpCodes2.NotFound) {
-              resolve3(response);
+              resolve4(response);
             }
             function dateTimeDeserializer(key, value) {
               if (typeof value === "string") {
@@ -19904,7 +19904,7 @@ var require_lib = __commonJS({
               err.result = response.result;
               reject(err);
             } else {
-              resolve3(response);
+              resolve4(response);
             }
           }));
         });
@@ -19916,6 +19916,7 @@ var require_lib = __commonJS({
 });
 
 // src/main.ts
+var import_node_fs3 = require("node:fs");
 var import_node_path4 = require("node:path");
 
 // ../../node_modules/.pnpm/@actions+core@3.0.1/node_modules/@actions/core/lib/command.js
@@ -20080,11 +20081,11 @@ var import_os = require("os");
 var import_fs = require("fs");
 var __awaiter = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
-    return value instanceof P ? value : new P(function(resolve3) {
-      resolve3(value);
+    return value instanceof P ? value : new P(function(resolve4) {
+      resolve4(value);
     });
   }
-  return new (P || (P = Promise))(function(resolve3, reject) {
+  return new (P || (P = Promise))(function(resolve4, reject) {
     function fulfilled(value) {
       try {
         step(generator.next(value));
@@ -20100,7 +20101,7 @@ var __awaiter = function(thisArg, _arguments, P, generator) {
       }
     }
     function step(result) {
-      result.done ? resolve3(result.value) : adopt(result.value).then(fulfilled, rejected);
+      result.done ? resolve4(result.value) : adopt(result.value).then(fulfilled, rejected);
     }
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
@@ -20380,11 +20381,11 @@ var fs2 = __toESM(require("fs"), 1);
 var path = __toESM(require("path"), 1);
 var __awaiter2 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
-    return value instanceof P ? value : new P(function(resolve3) {
-      resolve3(value);
+    return value instanceof P ? value : new P(function(resolve4) {
+      resolve4(value);
     });
   }
-  return new (P || (P = Promise))(function(resolve3, reject) {
+  return new (P || (P = Promise))(function(resolve4, reject) {
     function fulfilled(value) {
       try {
         step(generator.next(value));
@@ -20400,7 +20401,7 @@ var __awaiter2 = function(thisArg, _arguments, P, generator) {
       }
     }
     function step(result) {
-      result.done ? resolve3(result.value) : adopt(result.value).then(fulfilled, rejected);
+      result.done ? resolve4(result.value) : adopt(result.value).then(fulfilled, rejected);
     }
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
@@ -20504,11 +20505,11 @@ function isUnixExecutable(stats) {
 // ../../node_modules/.pnpm/@actions+io@3.0.2/node_modules/@actions/io/lib/io.js
 var __awaiter3 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
-    return value instanceof P ? value : new P(function(resolve3) {
-      resolve3(value);
+    return value instanceof P ? value : new P(function(resolve4) {
+      resolve4(value);
     });
   }
-  return new (P || (P = Promise))(function(resolve3, reject) {
+  return new (P || (P = Promise))(function(resolve4, reject) {
     function fulfilled(value) {
       try {
         step(generator.next(value));
@@ -20524,7 +20525,7 @@ var __awaiter3 = function(thisArg, _arguments, P, generator) {
       }
     }
     function step(result) {
-      result.done ? resolve3(result.value) : adopt(result.value).then(fulfilled, rejected);
+      result.done ? resolve4(result.value) : adopt(result.value).then(fulfilled, rejected);
     }
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
@@ -20598,11 +20599,11 @@ function findInPath(tool) {
 var import_timers = require("timers");
 var __awaiter4 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
-    return value instanceof P ? value : new P(function(resolve3) {
-      resolve3(value);
+    return value instanceof P ? value : new P(function(resolve4) {
+      resolve4(value);
     });
   }
-  return new (P || (P = Promise))(function(resolve3, reject) {
+  return new (P || (P = Promise))(function(resolve4, reject) {
     function fulfilled(value) {
       try {
         step(generator.next(value));
@@ -20618,7 +20619,7 @@ var __awaiter4 = function(thisArg, _arguments, P, generator) {
       }
     }
     function step(result) {
-      result.done ? resolve3(result.value) : adopt(result.value).then(fulfilled, rejected);
+      result.done ? resolve4(result.value) : adopt(result.value).then(fulfilled, rejected);
     }
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
@@ -20837,7 +20838,7 @@ var ToolRunner = class extends events.EventEmitter {
         this.toolPath = path3.resolve(process.cwd(), this.options.cwd || process.cwd(), this.toolPath);
       }
       this.toolPath = yield which(this.toolPath, true);
-      return new Promise((resolve3, reject) => __awaiter4(this, void 0, void 0, function* () {
+      return new Promise((resolve4, reject) => __awaiter4(this, void 0, void 0, function* () {
         this._debug(`exec tool: ${this.toolPath}`);
         this._debug("arguments:");
         for (const arg of this.args) {
@@ -20920,7 +20921,7 @@ var ToolRunner = class extends events.EventEmitter {
           if (error2) {
             reject(error2);
           } else {
-            resolve3(exitCode);
+            resolve4(exitCode);
           }
         });
         if (this.options.input) {
@@ -21043,11 +21044,11 @@ var ExecState = class _ExecState extends events.EventEmitter {
 // ../../node_modules/.pnpm/@actions+exec@3.0.0/node_modules/@actions/exec/lib/exec.js
 var __awaiter5 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
-    return value instanceof P ? value : new P(function(resolve3) {
-      resolve3(value);
+    return value instanceof P ? value : new P(function(resolve4) {
+      resolve4(value);
     });
   }
-  return new (P || (P = Promise))(function(resolve3, reject) {
+  return new (P || (P = Promise))(function(resolve4, reject) {
     function fulfilled(value) {
       try {
         step(generator.next(value));
@@ -21063,7 +21064,7 @@ var __awaiter5 = function(thisArg, _arguments, P, generator) {
       }
     }
     function step(result) {
-      result.done ? resolve3(result.value) : adopt(result.value).then(fulfilled, rejected);
+      result.done ? resolve4(result.value) : adopt(result.value).then(fulfilled, rejected);
     }
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
@@ -21231,11 +21232,11 @@ var httpClient = __toESM(require_lib(), 1);
 var import_undici2 = __toESM(require_undici(), 1);
 var __awaiter6 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
-    return value instanceof P ? value : new P(function(resolve3) {
-      resolve3(value);
+    return value instanceof P ? value : new P(function(resolve4) {
+      resolve4(value);
     });
   }
-  return new (P || (P = Promise))(function(resolve3, reject) {
+  return new (P || (P = Promise))(function(resolve4, reject) {
     function fulfilled(value) {
       try {
         step(generator.next(value));
@@ -21251,7 +21252,7 @@ var __awaiter6 = function(thisArg, _arguments, P, generator) {
       }
     }
     function step(result) {
-      result.done ? resolve3(result.value) : adopt(result.value).then(fulfilled, rejected);
+      result.done ? resolve4(result.value) : adopt(result.value).then(fulfilled, rejected);
     }
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
@@ -25634,7 +25635,7 @@ function describeCliArtifact(version) {
 
 // src/cli/run.ts
 var UNEXPECTED_ERROR_MESSAGE = "Nimzo could not be reached or sent an unexpected response. Please try again later.";
-var TASK_FAILURE_REASONS_WITH_SHOWN_MESSAGE = /* @__PURE__ */ new Set(["POLICY", "INVALID_INPUT"]);
+var TASK_FAILURE_REASONS_WITH_SHOWN_MESSAGE = /* @__PURE__ */ new Set(["POLICY", "INVALID_INPUT", "ENVIRONMENT_FILE_NOT_FOUND"]);
 var TASK_NOT_EXECUTED_MESSAGE = "Nimzo could not execute the evaluation. Please try again later.";
 async function runCliEvaluation(cliPath, folders, settings) {
   const output = await getExecOutput(
@@ -25654,6 +25655,8 @@ async function runCliEvaluation(cliPath, folders, settings) {
       "--pull-request-id",
       settings.pullRequest.number,
       ...settings.timeoutSeconds === null ? [] : ["--timeout-seconds", String(settings.timeoutSeconds)],
+      ...settings.planFile === null ? [] : ["--plan", settings.planFile],
+      ...settings.environment === null ? [] : ["--environment", settings.environment],
       ...folders
     ],
     {
@@ -25956,6 +25959,7 @@ ${finding.description}`,
 ${finding.remediation}`,
     buildFileLinkMarkdown(finding, content),
     `> ${finding.message.replaceAll(/\r?\n/g, " ")}`,
+    buildFindingValueLine(finding),
     snippet === void 0 ? null : buildSnippetMarkdown(snippet)
   ].filter((part) => part !== null);
   return `<details${finding.blocking ? " open" : ""}>
@@ -25976,6 +25980,15 @@ function buildFileLinkMarkdown(finding, { repositoryUrl, headSha }) {
   const anchor = finding.line === null ? "" : `#L${finding.line}`;
   const url = `${repositoryUrl}/blob/${headSha}/${finding.file.split("/").map(encodeURIComponent).join("/")}${anchor}`;
   return `[${buildCodeSpan(buildFilePosition(finding.file, finding.line))}](${url})`;
+}
+var MAX_SHOWN_VALUE_LENGTH = 80;
+function buildFindingValueLine(finding) {
+  if (finding.value === void 0 || finding.value === null) return null;
+  const value = JSON.stringify(finding.value);
+  const shown = value.length > MAX_SHOWN_VALUE_LENGTH ? `${value.slice(0, MAX_SHOWN_VALUE_LENGTH)}\u2026` : value;
+  const attribute = finding.attribute ? `${buildCodeSpan(finding.attribute)} = ` : "";
+  const setIn = finding.valueFile ? `, set in ${buildCodeSpan(buildFilePosition(finding.valueFile, finding.valueLine ?? null))}` : "";
+  return `**Value:** ${attribute}${buildCodeSpan(shown)}${setIn}`;
 }
 function buildFilePosition(file, line) {
   return line === null ? file : `${file}:${line}`;
@@ -26186,6 +26199,7 @@ ${finding.description}`,
 
 ${finding.remediation}`,
     `> ${finding.message.replaceAll(/\r?\n/g, " ")}`,
+    buildFindingValueLine(finding),
     detail.showPrompt ? buildPromptSection(finding, context3, folder?.stackName ?? null) : null,
     buildFixSection(fixSection, detail.showFixes, folder?.url ?? null),
     FOOTER2
@@ -26454,7 +26468,7 @@ function buildVerdictOutput(verdict, report) {
 }
 function selectOutputFindingFields(finding) {
   const { key, folder, blocking, policyId, title, description, severity, remediation } = finding;
-  const { resourceType, resourceId, message, file, line } = finding;
+  const { resourceType, resourceId, message, file, line, value, valueFile, valueLine } = finding;
   return {
     key,
     folder,
@@ -26468,7 +26482,10 @@ function selectOutputFindingFields(finding) {
     resourceId,
     message,
     file,
-    line
+    line,
+    value: value ?? null,
+    valueFile: valueFile ?? null,
+    valueLine: valueLine ?? null
   };
 }
 function withoutStatus({ status: _status, ...finding }) {
@@ -26476,6 +26493,8 @@ function withoutStatus({ status: _status, ...finding }) {
 }
 
 // src/main.ts
+var ENVIRONMENT_NOT_FOUND_ERROR_CODE = "GOVERNANCE_ENVIRONMENT_NOT_FOUND";
+var PLAN_NEXT_TO_CODE_HINT = "write the plan into its stack folder, for example with terraform -chdir=<stack> show -json plan.out > <stack>/plan.json";
 var NO_NIMZO_TOKEN_MESSAGE = "The nimzo-token input is empty. GitHub gives pull requests from forks and from Dependabot no secrets and a read-only token, so Nimzo cannot evaluate this pull request nor report on it. Otherwise, set nimzo-token to the secret holding your Nimzo organization API key.";
 async function run() {
   const githubToken = getInput("github-token", { required: true });
@@ -26493,14 +26512,21 @@ async function run() {
     const enableAnnotations = readEnableAnnotationsInput(enableComments);
     const timeoutSeconds = readTimeoutInput();
     const workspace = process.env["GITHUB_WORKSPACE"] ?? process.cwd();
+    const plan = readPlanFileInput(workspace);
+    const environment = getInput("environment") || null;
     const files = await listPullRequestFiles(octokit, context2.repo, pullRequest);
     const report = await evaluateChangedFolders(
-      listChangedTerraformFolders(files, workspace),
+      plan === null ? listChangedTerraformFolders(files, workspace) : [plan.stackFolder],
       githubToken,
       pullRequest,
-      { nimzoUrl, nimzoApiKey, timeoutSeconds },
+      { nimzoUrl, nimzoApiKey, timeoutSeconds, planFile: plan?.planFile ?? null, environment },
       workspace
     );
+    if (environment !== null && isEveryFolderWithoutEnvironment(report)) {
+      throw new Error(
+        `No evaluated stack has an environment named "${environment}": check the environment input, written as Nimzo shows the name`
+      );
+    }
     const existingComment = await findVerdictComment(octokit, context2.repo, pullRequest.number);
     const previousState = existingComment === null ? { headSha: null, findings: [] } : readVerdictState(existingComment.body);
     const verdict = buildVerdict(report, previousState.findings, pullRequest.head.sha);
@@ -26556,7 +26582,9 @@ async function evaluateChangedFolders(folders, githubToken, pullRequest, nimzo, 
     info("No Terraform change in this pull request");
     return { folders: [] };
   }
-  info(`Changed Terraform folders: ${folders.join(", ")}`);
+  info(
+    nimzo.planFile === null ? `Changed Terraform folders: ${folders.join(", ")}` : `Terraform plan ${nimzo.planFile}, with the code of ${folders.join(", ")}`
+  );
   const cliPath = await downloadCli(
     getInput("nimzo-version", { required: true }),
     githubToken,
@@ -26635,6 +26663,39 @@ function readEnableAnnotationsInput(enableComments) {
     return false;
   }
   return enableAnnotations;
+}
+function readPlanFileInput(workspace) {
+  const input = getInput("plan-file");
+  if (input === "") return null;
+  const planFile = (0, import_node_path4.relative)(workspace, (0, import_node_path4.resolve)(workspace, input));
+  if (planFile.startsWith("..") || (0, import_node_path4.isAbsolute)(planFile)) {
+    throw new Error(`The plan-file input must name a file inside the workspace, not "${input}"`);
+  }
+  if (!isFile((0, import_node_path4.join)(workspace, planFile))) {
+    throw new Error(`The plan-file input names no file: ${planFile}`);
+  }
+  const stackFolder = (0, import_node_path4.dirname)(planFile);
+  if (!holdsTerraformCode((0, import_node_path4.join)(workspace, stackFolder))) {
+    throw new Error(`${planFile} is not next to Terraform code: ${PLAN_NEXT_TO_CODE_HINT}`);
+  }
+  return { planFile, stackFolder };
+}
+function isFile(path4) {
+  try {
+    return (0, import_node_fs3.statSync)(path4).isFile();
+  } catch {
+    return false;
+  }
+}
+function holdsTerraformCode(folder) {
+  return (0, import_node_fs3.readdirSync)(folder, { withFileTypes: true }).some(
+    (entry) => entry.isFile() && (entry.name.endsWith(".tf") || entry.name.endsWith(".tf.json"))
+  );
+}
+function isEveryFolderWithoutEnvironment(report) {
+  return report.folders.length > 0 && report.folders.every(
+    (folder) => folder.outcome === "skipped" && folder.errorCode === ENVIRONMENT_NOT_FOUND_ERROR_CODE
+  );
 }
 function readTimeoutInput() {
   const value = getInput("timeout");

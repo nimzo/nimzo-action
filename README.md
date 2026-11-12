@@ -46,15 +46,17 @@ jobs:
           nimzo-token: ${{ secrets.NIMZO_TOKEN }}
 ```
 
-| Input                | Default                     | Description                                                                                                                   |
-| -------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `nimzo-url`          | `https://staging.nimzo.dev` | URL of Nimzo, without a path: the CLI calls the API under it, and the policy links in the comment and annotations point at it |
-| `nimzo-token`        | required                    | Organization API key (`ak_…`) the Nimzo CLI sends to the governance API, see [Token](#token)                                  |
-| `github-token`       | `${{ github.token }}`       | Token the action calls GitHub with, see [Permissions](#permissions)                                                           |
-| `nimzo-version`      | `latest`                    | Tag of `ghcr.io/getnimzo/nimzo-cli` to run, or the digest (`sha256:…`) of its manifest                                        |
-| `enable-comments`    | `false`                     | Writes a review comment on each finding of the changed files, with the fixes Nimzo suggests, instead of annotations           |
-| `enable-annotations` | `true`                      | Annotates each finding on its line, unless `enable-comments` is `true`; `false` leaves the findings out of the annotations    |
-| `timeout`            | the CLI's (300)             | Seconds the CLI waits for the evaluation of each folder, see [Timeout](#timeout)                                              |
+| Input                | Default                     | Description                                                                                                                          |
+| -------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `nimzo-url`          | `https://staging.nimzo.dev` | URL of Nimzo, without a path: the CLI calls the API under it, and the policy links in the comment and annotations point at it        |
+| `nimzo-token`        | required                    | Organization API key (`ak_…`) the Nimzo CLI sends to the governance API, see [Token](#token)                                         |
+| `github-token`       | `${{ github.token }}`       | Token the action calls GitHub with, see [Permissions](#permissions)                                                                  |
+| `nimzo-version`      | `latest`                    | Tag of `ghcr.io/getnimzo/nimzo-cli` to run, or the digest (`sha256:…`) of its manifest                                               |
+| `enable-comments`    | `false`                     | Writes a review comment on each finding of the changed files, with the fixes Nimzo suggests, instead of annotations                  |
+| `enable-annotations` | `true`                      | Annotates each finding on its line, unless `enable-comments` is `true`; `false` leaves the findings out of the annotations           |
+| `plan-file`          | unset                       | Terraform plan JSON to evaluate instead of the changed folders, written into its stack folder, see [Terraform plan](#terraform-plan) |
+| `environment`        | unset                       | Name of the environment of the stack to evaluate, see [Environment](#environment)                                                    |
+| `timeout`            | the CLI's (300)             | Seconds the CLI waits for the evaluation of each folder, see [Timeout](#timeout)                                                     |
 
 ### Permissions
 
@@ -65,6 +67,34 @@ The `github-token` needs these permissions, set in the workflow's `permissions` 
 - `checks: write`: to write the verdict, its summary and its annotations on the job's check run.
 - `actions: read`: to find the job's check run among the jobs of the workflow run. A private repository needs it; a public one lists its jobs to anyone. Without it, the action says so in the job log and leaves the annotations out, and still reports the verdict everywhere else.
 - `packages: read`: to download the Nimzo CLI from GitHub Packages.
+
+### Terraform plan
+
+Set `plan-file` to evaluate a Terraform plan instead of the folders the pull request changes. Write the plan JSON into its stack folder: the action sends the plan with the Terraform files of that folder, so each finding points at its resource block in the code, and a plan with no `.tf` or `.tf.json` file next to it fails the step. A plan outside the workspace, or a missing file, fails the step too. The folder is matched to its Nimzo stack as a changed folder is (see [How folders map to stacks](#how-folders-map-to-stacks)), and only its own files are sent: a resource of a local module in a subfolder points at its `module` block.
+
+```yaml
+steps:
+  - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+  - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+    with:
+      # The wrapper adds its own lines to the output of a command, which would break the redirected JSON.
+      terraform_wrapper: false
+  - run: |
+      terraform -chdir=infra/prod init -input=false
+      terraform -chdir=infra/prod plan -input=false -var-file envs/prod.tfvars -out plan.out
+      terraform -chdir=infra/prod show -json plan.out > infra/prod/plan.json
+  - uses: getnimzo/nimzo-action@main
+    with:
+      nimzo-token: ${{ secrets.NIMZO_TOKEN }}
+      plan-file: infra/prod/plan.json
+      environment: prod
+```
+
+The policies run on the plan: the values Terraform will apply, including those known only once the variables are read. Each finding shows the value its policy read and, when it comes from a variable, the line of the variables file or of the declaration that sets it. Nimzo suggests no fix for a plan.
+
+### Environment
+
+Set `environment` to the name of an environment of the stack, as Nimzo shows it, such as `prod`, with or without `plan-file`. Its variables file is loaded, and the policy parameters of that environment apply. A stack with no environment of that name is skipped; when every evaluated stack is, the step fails, so a mistyped name cannot pass.
 
 ### Timeout
 
@@ -160,7 +190,10 @@ The output looks like this:
       "resourceId": "aws_instance.web",
       "message": "EC2 instance 'aws_instance.web' must require IMDSv2 for instance metadata access",
       "file": "stacks/vpc/main.tf",
-      "line": 11
+      "line": 11,
+      "value": null,
+      "valueFile": null,
+      "valueLine": null
     }
   ],
   "staleFindings": [],
@@ -171,6 +204,8 @@ The output looks like this:
 - A folder's `outcome` is `passed`, `warning` (only findings that do not block), `failed`, `skipped` (no Nimzo stack), `no_policies` (no policy applies to its stack) or `error`. For an `error`, `errorCode` is the error code of Nimzo's refusal (such as `GOVERNANCE_BUNDLE_NOT_FOUND` or `GENERIC_UNAUTHORIZED`) and `taskFailureReason` why its task failed (`ZIP`, `INVALID_INPUT`, `POLICY`, `TIMEOUT` or `INTERNAL`).
 - A finding's `blocking` says whether it blocks under the enforcement mode Nimzo applied.
 - `file` is relative to the repository root; `file` and `line` are `null` when Nimzo reports no location.
+- `value` is the value the policy read at the offending attribute, any JSON value, `******` when sensitive, `null` when it read none; `valueFile` and `valueLine` say where it is set when it comes from a variable, and are `null` otherwise.
+- A folder's `outcome` is also `skipped` when its stack has no environment with the `environment` input's name, and `taskFailureReason` can be `ENVIRONMENT_FILE_NOT_FOUND` when the environment's variables file was not sent.
 - `staleFindings` and `resolvedFindings` hold `{ key, folder, policyId, title, severity, resourceId, blocking, file, line, resolvedIn }`; `resolvedIn` is the commit a resolved finding was first missing from, and `null` for a stale one.
 
 ### How folders map to stacks

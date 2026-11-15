@@ -25749,12 +25749,17 @@ function buildRemediationPrompt({
     ...where ? ["", "## Audited code", where] : [],
     "",
     `## Failing resources (${failingResources.length})`,
-    ...failingResources.flatMap(({ resource, location, attribute, attributeLocation, message }, index) => [
-      `${index + 1}. \`${resource}\``,
-      ...location ? [`   - Declared at: ${location}`] : [],
-      ...attribute ? [`   - Failing on: ${attribute}${attributeLocation ? ` (${attributeLocation})` : ""}`] : [],
-      ...message ? [`   - Finding: ${message}`] : []
-    ])
+    ...failingResources.flatMap(
+      ({ resource, location, attribute, attributeLocation, attributeValues = [], message }, index) => [
+        `${index + 1}. \`${resource}\``,
+        ...location ? [`   - Declared at: ${location}`] : [],
+        ...attribute ? [`   - Failing on: ${attribute}${attributeLocation ? ` (${attributeLocation})` : ""}`] : [],
+        ...attributeValues.map(
+          ({ path: path4, value, valueLocation }) => `   - Value: ${path4} = ${value}${valueLocation ? `, set in ${valueLocation}` : ""}`
+        ),
+        ...message ? [`   - Finding: ${message}`] : []
+      ]
+    )
   ].join("\n");
 }
 
@@ -26244,6 +26249,13 @@ function buildFailingResource(finding) {
     location: finding.file === null ? null : buildFilePosition(finding.file, resourceLine),
     attribute: finding.attribute ?? null,
     attributeLocation: finding.file === null || attributeLine === null ? null : buildFilePosition(finding.file, attributeLine),
+    attributeValues: finding.attribute && finding.value !== void 0 && finding.value !== null ? [
+      {
+        path: finding.attribute,
+        value: JSON.stringify(finding.value),
+        valueLocation: finding.valueFile ? buildFilePosition(finding.valueFile, finding.valueLine ?? null) : null
+      }
+    ] : [],
     message: finding.message
   };
 }

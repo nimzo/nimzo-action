@@ -25654,6 +25654,8 @@ async function runCliEvaluation(cliPath, folders, settings) {
       settings.pullRequest.commitSha,
       "--pull-request-id",
       settings.pullRequest.number,
+      "--base-git-ref",
+      settings.pullRequest.baseGitRef,
       ...settings.timeoutSeconds === null ? [] : ["--timeout-seconds", String(settings.timeoutSeconds)],
       ...settings.planFile === null ? [] : ["--plan", settings.planFile],
       ...settings.environment === null ? [] : ["--environment", settings.environment],
@@ -26605,9 +26607,17 @@ async function evaluateChangedFolders(folders, githubToken, pullRequest, nimzo, 
   return runCliEvaluation(cliPath, folders, {
     ...nimzo,
     repositoryUrl: buildRepositoryUrl(),
-    pullRequest: { number: String(pullRequest.number), gitRef: pullRequest.head.ref, commitSha: context2.sha },
+    pullRequest: {
+      number: String(pullRequest.number),
+      gitRef: buildPullRequestGitRef(pullRequest),
+      baseGitRef: pullRequest.base.ref,
+      commitSha: context2.sha
+    },
     workspace
   });
+}
+function buildPullRequestGitRef(pullRequest) {
+  return pullRequest.head.repo?.full_name === pullRequest.base.repo.full_name ? pullRequest.head.ref : pullRequest.head.label;
 }
 async function isEvaluatedCommitStillPullRequestHead(octokit, pullRequest) {
   try {

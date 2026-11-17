@@ -13,7 +13,7 @@ inputs:
     description: Token that lists the pull request's changed files, downloads the Nimzo CLI from GitHub Packages, writes the pull request comment, and finds the job's check run among the workflow run's jobs to write the verdict on it.
     default: ${{ github.token }}
   nimzo-version:
-    description: Version of the Nimzo CLI to download from ghcr.io/getnimzo/nimzo-cli, a tag or the digest of its manifest.
+    description: Version of the Nimzo CLI to download from ghcr.io/nimzo/nimzo-cli, a tag or the digest of its manifest.
     default: latest
   enable-comments:
     description: Whether to write one review comment per finding of the changed files under Files changed, with the policy, a prompt for an AI assistant and the suggested fixes the diff shows, a single one applied in one click. The findings then get no annotation. The summary comment is written either way.

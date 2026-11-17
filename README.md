@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: getnimzo/nimzo-action@main
+      - uses: nimzo/nimzo-action@main
         with:
           nimzo-token: ${{ secrets.NIMZO_TOKEN }}
 ```
@@ -51,7 +51,7 @@ jobs:
 | `nimzo-url`          | `https://staging.nimzo.dev` | URL of Nimzo, without a path: the CLI calls the API under it, and the policy links in the comment and annotations point at it        |
 | `nimzo-token`        | required                    | Organization API key (`ak_…`) the Nimzo CLI sends to the governance API, see [Token](#token)                                         |
 | `github-token`       | `${{ github.token }}`       | Token the action calls GitHub with, see [Permissions](#permissions)                                                                  |
-| `nimzo-version`      | `latest`                    | Tag of `ghcr.io/getnimzo/nimzo-cli` to run, or the digest (`sha256:…`) of its manifest                                               |
+| `nimzo-version`      | `latest`                    | Tag of `ghcr.io/nimzo/nimzo-cli` to run, or the digest (`sha256:…`) of its manifest                                                  |
 | `enable-comments`    | `false`                     | Writes a review comment on each finding of the changed files, with the fixes Nimzo suggests, instead of annotations                  |
 | `enable-annotations` | `true`                      | Annotates each finding on its line, unless `enable-comments` is `true`; `false` leaves the findings out of the annotations           |
 | `plan-file`          | unset                       | Terraform plan JSON to evaluate instead of the changed folders, written into its stack folder, see [Terraform plan](#terraform-plan) |
@@ -83,7 +83,7 @@ steps:
       terraform -chdir=infra/prod init -input=false
       terraform -chdir=infra/prod plan -input=false -var-file envs/prod.tfvars -out plan.out
       terraform -chdir=infra/prod show -json plan.out > infra/prod/plan.json
-  - uses: getnimzo/nimzo-action@main
+  - uses: nimzo/nimzo-action@main
     with:
       nimzo-token: ${{ secrets.NIMZO_TOKEN }}
       plan-file: infra/prod/plan.json
@@ -110,7 +110,7 @@ An evaluation ends once Nimzo has suggested the fixes of its findings, which can
     oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
     oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
     tags: tag:ci
-- uses: getnimzo/nimzo-action@main
+- uses: nimzo/nimzo-action@main
   with:
     nimzo-token: ${{ secrets.NIMZO_TOKEN }}
 ```
@@ -146,7 +146,7 @@ In the repository's branch protection rule or ruleset, require the status check 
 The `verdict` output is the verdict as JSON. Give the action step an `id`, and read the output in a later step through an environment variable:
 
 ```yaml
-- uses: getnimzo/nimzo-action@main
+- uses: nimzo/nimzo-action@main
   id: nimzo
   with:
     nimzo-token: ${{ secrets.NIMZO_TOKEN }}
@@ -216,7 +216,7 @@ A folder is matched to the stack imported from `https://github.com/<owner>/<repo
 
 - The action runs on Linux x64 runners only.
 - Pull requests from forks and from Dependabot cannot be evaluated: GitHub gives them no secrets, so `nimzo-token` is empty, and a read-only token, so neither the comment nor the job's check can be written. The job fails and says so.
-- `nimzo-version` defaults to `latest`, which every change to the CLI republishes, so a new CLI reaches every workflow at once. To pin a CLI, set it to the manifest digest the `Publish package` run of `getnimzo/nimzo-cli` prints.
+- `nimzo-version` defaults to `latest`, which every change to the CLI republishes, so a new CLI reaches every workflow at once. To pin a CLI, set it to the manifest digest the `Publish package` run of `nimzo/nimzo-cli` prints.
 
 ## Token
 

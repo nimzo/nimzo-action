@@ -25578,7 +25578,7 @@ var import_promises = require("node:fs/promises");
 var import_node_path = require("node:path");
 var CLI_REGISTRY = "ghcr.io";
 var CLI_REPOSITORY = "nimzo/nimzo-cli";
-var CLI_FILE_NAME = "nimzo-cli";
+var CLI_FILE_NAME = "nimzo";
 var OCI_MANIFEST_MEDIA_TYPE = "application/vnd.oci.image.manifest.v1+json";
 async function downloadCli(version, githubToken, folder) {
   if (process.platform !== "linux" || process.arch !== "x64") {
